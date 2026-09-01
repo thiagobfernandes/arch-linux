@@ -1,232 +1,162 @@
-#!/usr/bin/env bash
-set -e
+# ~/.config/hypr/hyprland.conf
+# Config base para Arch + Hyprland (de acordo com o script que você rodou)
 
-echo "=== Instalando pacotes básicos para Hyprland ==="
+# ======================
+# Variáveis e geral
+# ======================
 
-sudo pacman -Suy --noconfirm
+# Tecla modificadora (SUPER = tecla Windows)
+$modifier = SUPER
 
-sudo pacman -S --noconfirm \
-  polkit-gnome \
-  waybar \
-  swaync \
-  wl-clipboard \
-  xdg-desktop-portal-hyprland \
-  thunar thunar-volman \
-  pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber \
-  pavucontrol \
-  grim slurp \
-  hyprlock \
-  hypridle \
-  hyprpaper
+# Layout padrão
+general {
+    gaps_in = 5
+    gaps_out = 10
+    border_size = 2
+    col.active_border = rgb(87cf69)
+    col.inactive_border = rgb(334155)
+    layout = dwindle
+}
 
-echo "=== Criando diretórios de configuração ==="
+# Decoração
+decoration {
+    rounding = 10
 
-mkdir -p ~/.config/hypr
-mkdir -p ~/.config/waybar
-mkdir -p ~/.config/swaync
-mkdir -p ~/Pictures
-
-echo "=== Criando arquivo de sessão do Hyprland (caso não exista) ==="
-
-sudo mkdir -p /usr/share/wayland-sessions
-sudo tee /usr/share/wayland-sessions/hyprland.desktop > /dev/null << 'EOF'
-[Desktop Entry]
-Name=Hyprland
-Comment=Hyprland Wayland Compositor
-Exec=Hyprland
-Type=Application
-EOF
-
-echo "=== Criando config básico do Waybar ==="
-
-cat > ~/.config/waybar/config << 'EOF'
-{
-  "layer": "top",
-  "position": "top",
-  "height": 28,
-  "modules-left": ["hyprland/workspaces"],
-  "modules-center": ["clock"],
-  "modules-right": ["tray"],
-  "hyprland/workspaces": {
-    "format": "{icon}",
-    "on-click": "activate",
-    "format-icons": {
-      "1": "1",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5",
-      "6": "6",
-      "7": "7",
-      "8": "8",
-      "9": "9"
+    blur {
+        enabled = true
+        size = 3
+        passes = 1
     }
-  },
-  "clock": {
-    "format": "{:%H:%M}"
-  },
-  "tray": {
-    "icon-size": 16,
-    "spacing": 6
-  }
-}
-EOF
 
-cat > ~/.config/waybar/style.css << 'EOF'
-* {
-  font-family: monospace;
-  font-size: 13px;
+    shadow {
+        enabled = true
+        range = 4
+        render_power = 3
+    }
 }
 
-window#waybar {
-  background: rgba(20, 20, 30, 0.9);
-  color: #cdd6f4;
+# Animações
+animations {
+    enabled = true
+
+    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+
+    animation = windows, 1, 7, myBezier
+    animation = windowsOut, 1, 7, default, popin 80%
+    animation = fade, 1, 7, default
+    animation = workspaces, 1, 6, default
 }
 
-#workspaces button {
-  padding: 0 8px;
-  background: transparent;
-  color: #cdd6f4;
+# Layout dwindle
+dwindle {
+    pseudotile = true
+    preserve_split = true
 }
 
-#workspaces button.active {
-  background: #87cf69;
-  color: #11111b;
+# Input (teclado/trackpad)
+input {
+    kb_layout = us
+    follow_mouse = 1
+
+    touchpad {
+        natural_scroll = true
+    }
 }
 
-#clock,
-#tray {
-  padding: 0 8px;
-  margin: 0 4px;
-}
-EOF
+# ======================
+# Atalhos básicos
+# ======================
 
-echo "=== Criando config básico do swaync ==="
+# Terminal
+bind = $modifier, Return, exec, kitty
 
-cat > ~/.config/swaync/config.json << 'EOF'
-{
-  "positionX": "right",
-  "positionY": "top",
-  "layer": "overlay",
-  "control-center-layer": "top",
-  "layer-shell": true,
-  "cssPriority": "application",
-  "control-center-width": 400,
-  "control-center-height": 600,
-  "notification-window-width": 350,
-  "notification-icon-size": 64,
-  "notification-body-image-height": 100,
-  "notification-body-image-width": 200,
-  "timeout": 10,
-  "timeout-low": 5,
-  "timeout-critical": 0,
-  "fit-to-screen": false,
-  "control-center-margin-top": 10,
-  "control-center-margin-bottom": 10,
-  "control-center-margin-right": 10,
-  "control-center-margin-left": 10,
-  "notification-2fa-action": true,
-  "notification-inline-replies": false,
-  "notification-icon-cornerRadius": 0,
-  "notification-cornerRadius": 12,
-  "notification-window-cornerRadius": 12,
-  "notification-window-margin-top": 10,
-  "notification-window-margin-bottom": 10,
-  "notification-window-margin-right": 10,
-  "notification-window-margin-left": 10,
-  "notification-window-margin": 10,
-  "keyboard-shortcuts": true,
-  "image-visibility": "when-available",
-  "transition-time": 200,
-  "hide-on-clear": false,
-  "hide-on-action": true,
-  "script-fail-notify": true,
-  "scripts": {}
-}
-EOF
+# Fechar janela ativa
+bind = $modifier, Q, killactive
 
-cat > ~/.config/swaync/style.css << 'EOF'
-* {
-  font-family: monospace;
-  font-size: 13px;
-}
+# Recarregar config
+bind = $modifier, R, exec, hyprctl reload
 
-.notification {
-  background: rgba(20, 20, 30, 0.95);
-  color: #cdd6f4;
-  border-radius: 12px;
-}
+# Launcher (wofi)
+bind = $modifier, space, exec, wofi --show drun
 
-.control-center {
-  background: rgba(20, 20, 30, 0.95);
-  color: #cdd6f4;
-  border-radius: 12px;
-}
-EOF
+# Lock screen
+bind = $modifier, L, exec, hyprlock
 
-echo "=== Criando configs básicos de hyprlock e hyprpaper ==="
+# Screenshot de região (grim + slurp + wl-copy)
+bind = $modifier, P, exec, grim -g "$(slurp)" - | wl-copy
 
-cat > ~/.config/hypr/hyprlock.conf << 'EOF'
-background {
-  path = ~/Pictures/wallpaper.png
-  blur_passes = 3
-  blur_size = 8
-}
+# Workspaces (1–9)
+bind = $modifier, 1, workspace, 1
+bind = $modifier, 2, workspace, 2
+bind = $modifier, 3, workspace, 3
+bind = $modifier, 4, workspace, 4
+bind = $modifier, 5, workspace, 5
+bind = $modifier, 6, workspace, 6
+bind = $modifier, 7, workspace, 7
+bind = $modifier, 8, workspace, 8
+bind = $modifier, 9, workspace, 9
 
-label {
-  text = "Hey, $USER"
-  position = 0, 180
-  halign = center
-  valign = center
-  font_size = 20
-  color = #cdd6f4
-}
+# Mover janela pra workspace
+bind = $modifier SHIFT, 1, movetoworkspace, 1
+bind = $modifier SHIFT, 2, movetoworkspace, 2
+bind = $modifier SHIFT, 3, movetoworkspace, 3
+bind = $modifier SHIFT, 4, movetoworkspace, 4
+bind = $modifier SHIFT, 5, movetoworkspace, 5
+bind = $modifier SHIFT, 6, movetoworkspace, 6
+bind = $modifier SHIFT, 7, movetoworkspace, 7
+bind = $modifier SHIFT, 8, movetoworkspace, 8
+bind = $modifier SHIFT, 9, movetoworkspace, 9
 
-label {
-  text = "cmd[1000] echo '$(date +\"%H:%M\")'"
-  position = 0, 120
-  halign = center
-  valign = center
-  font_size = 40
-  color = #87cf69
-}
-EOF
+# Mover foco (vim-like)
+bind = $modifier, h, movefocus, l
+bind = $modifier, j, movefocus, d
+bind = $modifier, k, movefocus, u
+bind = $modifier, l, movefocus, r
 
-cat > ~/.config/hypr/hyprpaper.conf << 'EOF'
-[general]
-fill = cover
+# Mover janela ativa
+bind = $modifier SHIFT, h, movewindow, l
+bind = $modifier SHIFT, j, movewindow, d
+bind = $modifier SHIFT, k, movewindow, u
+bind = $modifier SHIFT, l, movewindow, r
 
-[wallpaper]
-monitor = *
-path = ~/Pictures/wallpaper.png
-EOF
+# Volume (PulseAudio/PipeWire)
+bind = , XF86AudioRaiseVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%
+bind = , XF86AudioLowerVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%
+bind = , XF86AudioMute, exec, pactl set-sink-mute @DEFAULT_SINK@ toggle
 
-echo "=== Adicionando exec-once no hyprland.conf (se existir) ==="
+# Brilho de tela
+bind = , XF86MonBrightnessUp, exec, brightnessctl set +5%
+bind = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
 
-if [ -f ~/.config/hypr/hyprland.conf ]; then
-  # Adiciona exec-once se não existir
-  if ! grep -q "exec-once = waybar" ~/.config/hypr/hyprland.conf; then
-    cat >> ~/.config/hypr/hyprland.conf << 'EOF'
+# ======================
+# Apps ao iniciar (exec-once)
+# ======================
 
-# Exec-once para apps básicos
+# Authentication agent (polkit)
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# Barra (Waybar)
 exec-once = waybar
+
+# Notificações (SwayNC)
 exec-once = swaync
+
+# XDG Desktop Portal (importante para apps modernos)
 exec-once = /usr/lib/xdg-desktop-portal-hyprland
+
+# Papel de parede (Hyprpaper)
 exec-once = hyprpaper
-EOF
-  fi
-fi
 
-echo "=== Ativando serviços do PipeWire ==="
+# ======================
+# Espaço para suas customizações
+# ======================
 
-sudo systemctl enable --now pipewire.socket
-sudo systemctl enable --now pipewire-pulse.socket
-sudo systemctl enable --now wireplumber.service
+# Exemplo: adicionar Chrome/Chromium depois:
+# bind = $modifier, C, exec, google-chrome-stable
+# ou:
+# bind = $modifier, C, exec, chromium
 
-echo "=== Setup básico concluído ==="
-echo ""
-echo "Próximos passos:"
-echo "1) Coloque uma imagem em ~/Pictures/wallpaper.png"
-echo "2) Recarregue o Hyprland: hyprctl reload"
-echo "3) Customize os arquivos em ~/.config/hypr, ~/.config/waybar, etc."
+# Exemplo: abrir file manager (Thunar):
+# bind = $modifier, E, exec, thunar
+
+# Você pode adicionar mais binds, exec-once, regras de janela, etc. aqui.
