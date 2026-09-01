@@ -1,162 +1,161 @@
-# ~/.config/hypr/hyprland.conf
-# Config base para Arch + Hyprland (de acordo com o script que você rodou)
+-- ~/.config/hypr/hyprland.lua
+-- Config base "maneira" para Arch + Hyprland
 
-# ======================
-# Variáveis e geral
-# ======================
-
-# Tecla modificadora (SUPER = tecla Windows)
-$modifier = SUPER
-
-# Layout padrão
-general {
-    gaps_in = 5
-    gaps_out = 10
-    border_size = 2
-    col.active_border = rgb(87cf69)
-    col.inactive_border = rgb(334155)
-    layout = dwindle
+-- ======================
+-- Geral
+-- ======================
+hl.general {
+  gaps_in = 5,
+  gaps_out = 10,
+  border_size = 2,
+  ["col.active_border"] = "rgb(87cf69)",
+  ["col.inactive_border"] = "rgb(334155)",
+  layout = "dwindle",
 }
 
-# Decoração
-decoration {
-    rounding = 10
-
-    blur {
-        enabled = true
-        size = 3
-        passes = 1
-    }
-
-    shadow {
-        enabled = true
-        range = 4
-        render_power = 3
-    }
+-- ======================
+-- Decoração
+-- ======================
+hl.decoration {
+  rounding = 10,
+  blur = {
+    enabled = true,
+    size = 3,
+    passes = 1,
+  },
+  shadow = {
+    enabled = true,
+    range = 4,
+    render_power = 3,
+  },
 }
 
-# Animações
-animations {
-    enabled = true
-
-    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
-
-    animation = windows, 1, 7, myBezier
-    animation = windowsOut, 1, 7, default, popin 80%
-    animation = fade, 1, 7, default
-    animation = workspaces, 1, 6, default
+-- ======================
+-- Animações
+-- ======================
+hl.animations {
+  enabled = true,
+  bezier = "myBezier, 0.05, 0.9, 0.1, 1.05",
+  animation = {
+    "windows, 1, 7, myBezier",
+    "windowsOut, 1, 7, default, popin 80%",
+    "fade, 1, 7, default",
+    "workspaces, 1, 6, default",
+  },
 }
 
-# Layout dwindle
-dwindle {
-    pseudotile = true
-    preserve_split = true
+-- ======================
+-- Layout dwindle
+-- ======================
+hl.dwindle {
+  pseudotile = true,
+  preserve_split = true,
 }
 
-# Input (teclado/trackpad)
-input {
-    kb_layout = us
-    follow_mouse = 1
-
-    touchpad {
-        natural_scroll = true
-    }
+-- ======================
+-- Input
+-- ======================
+hl.input {
+  kb_layout = "us",
+  follow_mouse = 1,
+  touchpad = {
+    natural_scroll = true,
+  },
 }
 
-# ======================
-# Atalhos básicos
-# ======================
+-- ======================
+-- Variáveis
+-- ======================
+local mainMod = "SUPER"
 
-# Terminal
-bind = $modifier, Return, exec, kitty
+-- ======================
+-- Atalhos básicos
+-- ======================
 
-# Fechar janela ativa
-bind = $modifier, Q, killactive
+-- Terminal
+hl.bind(mainMod, "Return", "exec", "kitty")
 
-# Recarregar config
-bind = $modifier, R, exec, hyprctl reload
+-- Fechar janela ativa
+hl.bind(mainMod, "q", "killactive", "")
 
-# Launcher (wofi)
-bind = $modifier, space, exec, wofi --show drun
+-- Recarregar config
+hl.bind(mainMod, "r", "exec", "hyprctl reload")
 
-# Lock screen
-bind = $modifier, L, exec, hyprlock
+-- Launcher (wofi)
+hl.bind(mainMod, "space", "exec", "wofi --show drun")
 
-# Screenshot de região (grim + slurp + wl-copy)
-bind = $modifier, P, exec, grim -g "$(slurp)" - | wl-copy
+-- Lock screen
+hl.bind(mainMod, "l", "exec", "hyprlock")
 
-# Workspaces (1–9)
-bind = $modifier, 1, workspace, 1
-bind = $modifier, 2, workspace, 2
-bind = $modifier, 3, workspace, 3
-bind = $modifier, 4, workspace, 4
-bind = $modifier, 5, workspace, 5
-bind = $modifier, 6, workspace, 6
-bind = $modifier, 7, workspace, 7
-bind = $modifier, 8, workspace, 8
-bind = $modifier, 9, workspace, 9
+-- Screenshot de região
+hl.bind(mainMod, "p", "exec", "grim -g \"$(slurp)\" - | wl-copy")
 
-# Mover janela pra workspace
-bind = $modifier SHIFT, 1, movetoworkspace, 1
-bind = $modifier SHIFT, 2, movetoworkspace, 2
-bind = $modifier SHIFT, 3, movetoworkspace, 3
-bind = $modifier SHIFT, 4, movetoworkspace, 4
-bind = $modifier SHIFT, 5, movetoworkspace, 5
-bind = $modifier SHIFT, 6, movetoworkspace, 6
-bind = $modifier SHIFT, 7, movetoworkspace, 7
-bind = $modifier SHIFT, 8, movetoworkspace, 8
-bind = $modifier SHIFT, 9, movetoworkspace, 9
+-- ======================
+-- Workspaces (1–9)
+-- ======================
+for i = 1, 9 do
+  hl.bind(mainMod, tostring(i), "workspace", tostring(i))
+  hl.bind(mainMod .. ", SHIFT", tostring(i), "movetoworkspace", tostring(i))
+end
 
-# Mover foco (vim-like)
-bind = $modifier, h, movefocus, l
-bind = $modifier, j, movefocus, d
-bind = $modifier, k, movefocus, u
-bind = $modifier, l, movefocus, r
+-- ======================
+-- Mover foco (vim-like)
+-- ======================
+hl.bind(mainMod, "h", "movefocus", "l")
+hl.bind(mainMod, "j", "movefocus", "d")
+hl.bind(mainMod, "k", "movefocus", "u")
+hl.bind(mainMod, "l", "movefocus", "r")
 
-# Mover janela ativa
-bind = $modifier SHIFT, h, movewindow, l
-bind = $modifier SHIFT, j, movewindow, d
-bind = $modifier SHIFT, k, movewindow, u
-bind = $modifier SHIFT, l, movewindow, r
+-- ======================
+-- Mover janela ativa
+-- ======================
+hl.bind(mainMod .. ", SHIFT", "h", "movewindow", "l")
+hl.bind(mainMod .. ", SHIFT", "j", "movewindow", "d")
+hl.bind(mainMod .. ", SHIFT", "k", "movewindow", "u")
+hl.bind(mainMod .. ", SHIFT", "l", "movewindow", "r")
 
-# Volume (PulseAudio/PipeWire)
-bind = , XF86AudioRaiseVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ +5%
-bind = , XF86AudioLowerVolume, exec, pactl set-sink-volume @DEFAULT_SINK@ -5%
-bind = , XF86AudioMute, exec, pactl set-sink-mute @DEFAULT_SINK@ toggle
+-- ======================
+-- Volume (PulseAudio/PipeWire)
+-- ======================
+hl.bind("", "XF86AudioRaiseVolume", "exec", "pactl set-sink-volume @DEFAULT_SINK@ +5%")
+hl.bind("", "XF86AudioLowerVolume", "exec", "pactl set-sink-volume @DEFAULT_SINK@ -5%")
+hl.bind("", "XF86AudioMute", "exec", "pactl set-sink-mute @DEFAULT_SINK@ toggle")
 
-# Brilho de tela
-bind = , XF86MonBrightnessUp, exec, brightnessctl set +5%
-bind = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
+-- ======================
+-- Brilho de tela
+-- ======================
+hl.bind("", "XF86MonBrightnessUp", "exec", "brightnessctl set +5%")
+hl.bind("", "XF86MonBrightnessDown", "exec", "brightnessctl set 5%-")
 
-# ======================
-# Apps ao iniciar (exec-once)
-# ======================
+-- ======================
+-- Apps ao iniciar (exec-once)
+-- ======================
 
-# Authentication agent (polkit)
-exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+-- Authentication agent (polkit)
+hl.exec_once("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
 
-# Barra (Waybar)
-exec-once = waybar
+-- Barra (Waybar)
+hl.exec_once("waybar")
 
-# Notificações (SwayNC)
-exec-once = swaync
+-- Notificações (SwayNC)
+hl.exec_once("swaync")
 
-# XDG Desktop Portal (importante para apps modernos)
-exec-once = /usr/lib/xdg-desktop-portal-hyprland
+-- XDG Desktop Portal
+hl.exec_once("/usr/lib/xdg-desktop-portal-hyprland")
 
-# Papel de parede (Hyprpaper)
-exec-once = hyprpaper
+-- Papel de parede (Hyprpaper)
+hl.exec_once("hyprpaper")
 
-# ======================
-# Espaço para suas customizações
-# ======================
+-- ======================
+-- Espaço para suas customizações
+-- ======================
 
-# Exemplo: adicionar Chrome/Chromium depois:
-# bind = $modifier, C, exec, google-chrome-stable
-# ou:
-# bind = $modifier, C, exec, chromium
+-- Exemplo: adicionar Chrome/Chromium
+-- hl.bind(mainMod, "c", "exec", "google-chrome-stable")
+-- ou:
+-- hl.bind(mainMod, "c", "exec", "chromium")
 
-# Exemplo: abrir file manager (Thunar):
-# bind = $modifier, E, exec, thunar
+-- Exemplo: abrir file manager (Thunar)
+-- hl.bind(mainMod, "e", "exec", "thunar")
 
-# Você pode adicionar mais binds, exec-once, regras de janela, etc. aqui.
+-- Você pode adicionar mais binds, exec_once, regras de janela, etc. aqui.
